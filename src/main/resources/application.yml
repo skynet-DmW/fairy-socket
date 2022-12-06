@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: fairy-socket
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss # 如果使用字符串表示，用这行设置格式
+    timezone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false # 使用时间戳，使用数值timestamp表示日期
+  freemarker:
+    request-context-attribute: request
+    prefix: /templates/
+    suffix: .html
+    content-type: text/html
+    enabled: true
+    cache: false
+    charset: UTF-8
+    allow-request-override: false
+    expose-request-attributes: true
+    expose-session-attributes: true
+    expose-spring-macro-helpers: true
+server:
+  shutdown: graceful
+  port: 9999
+  tomcat:
+    uri-encoding: UTF-8
+    basedir: ${user.home}/tomcat
+    max-connections: 2000
+  servlet:
+    context-path: /
+# 日志
+logging:
+  level:
+    root: DEBUG
+  config: classpath:log/logback-spring.xml

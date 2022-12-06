@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>WebSocket</title>
+</head>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script>
+    let A_socket;
+
+    // 打开WebSocket
+    function A_openSocket(uid) {
+
+        if (typeof (WebSocket) === "undefined") {
+            console.log("用户A 您的浏览器不支持WebSocket");
+        } else {
+            console.log("用户A 您的浏览器支持WebSocket");
+            const socketUrl = `ws://localhost:9999/server/${uid}`;
+            console.log(socketUrl);
+            if (A_socket != null) {
+                A_socket.close();
+                A_socket = null;
+                $("#A_btn").text('用户A开启socket')
+                return;
+            }
+            $("#A_btn").text('用户A关闭socket')
+            A_socket = new WebSocket(socketUrl);
+            // 打开事件
+            A_socket.onopen = function () {
+                console.log("用户A WebSocket已打开");
+                // socket.send("这是来自客户端的消息" + location.href + new Date());
+            };
+            // 获得消息事件
+            A_socket.onmessage = function (msg) {
+                console.log("用户A收到消息", msg.data);
+            };
+            // 关闭事件
+            A_socket.onclose = function () {
+                console.log("用户A WebSocket已关闭");
+            };
+            // 发生了错误事件
+            A_socket.onerror = function () {
+                console.log("用户A WebSocket发生了错误");
+            }
+        }
+    }
+
+    // 发送消息
+    function A_sendMessage(toUID, msg) {
+        if (typeof (WebSocket) === "undefined") {
+            console.log("您的浏览器不支持WebSocket");
+        } else {
+            console.log("您的浏览器支持WebSocket");
+            const msgJSON = {
+                toUID,
+                msg
+            }
+            A_socket.send(JSON.stringify(msgJSON));
+        }
+    }
+
+    // ===================================================================
+
+    let B_socket;
+
+    // 打开WebSocket
+    function B_openSocket(uid) {
+        if (typeof (WebSocket) === "undefined") {
+            console.log("用户B 您的浏览器不支持WebSocket");
+        } else {
+            console.log("用户B 您的浏览器支持WebSocket");
+            const socketUrl = `ws://localhost:9999/server/${uid}`;
+            console.log(socketUrl);
+            if (B_socket != null) {
+                B_socket.close();
+                B_socket = null;
+                $("#B_btn").text('用户B开启socket')
+                return;
+            }
+            $("#B_btn").text('用户B关闭socket')
+            B_socket = new WebSocket(socketUrl);
+            // 打开事件
+            B_socket.onopen = function () {
+                console.log("用户B WebSocket已打开");
+                // socket.send("这是来自客户端的消息" + location.href + new Date());
+            };
+            // 获得消息事件
+            B_socket.onmessage = function (msg) {
+                console.log("用户B收到消息", msg.data);
+            };
+            // 关闭事件
+            B_socket.onclose = function () {
+                console.log("用户B WebSocket已关闭");
+            };
+            // 发生了错误事件
+            B_socket.onerror = function () {
+                console.log("用户B WebSocket发生了错误");
+            }
+        }
+    }
+
+    // 发送消息
+    function B_sendMessage(toUID, msg) {
+        if (typeof (WebSocket) === "undefined") {
+            console.log("您的浏览器不支持WebSocket");
+        } else {
+            console.log("您的浏览器支持WebSocket");
+            const msgJSON = {
+                toUID,
+                msg
+            }
+            B_socket.send(JSON.stringify(msgJSON));
+        }
+    }
+
+    // 客户端主动发送消息
+    function clientSendMessage(toUID, message) {
+        fetch(`http://localhost:9999/socket/push/${toUID}?message=${message}`, {
+            method: 'GET'
+        }).then(response => {
+            // console.log('客户端主动发送消息响应', response)
+        })
+    }
+</script>
+<body>
+
+<div class="container">
+    <div>【UID】：用户A</div>
+    <div>
+        <label>【toUID】：</label>
+        <input id="A_toUID" name="A_toUID" type="text" value="用户B">
+    </div>
+    <div>
+        <label>【Msg】：</label>
+        <input id="A_msg" name="A_msg" type="text" value="用户A 发送消息 用户B">
+    </div>
+    <div>
+        <button id="A_btn" onclick="A_openSocket('用户A')">用户A开启socket</button>
+    </div>
+    <div>
+        <button onclick="A_sendMessage($('#A_toUID').val(), $('#A_msg').val())">用户A发送消息</button>
+    </div>
+    <div>==================================</div>
+    <div>【UID】：用户B</div>
+    <div>
+        <label>【toUID】：</label>
+        <input id="B_toUID" name="B_toUID" type="text" value="用户A">
+    </div>
+    <div>
+        <label>【Msg】：</label>
+        <input id="B_msg" name="B_msg" type="text" value="用户B 发送消息 用户A">
+    </div>
+    <div>
+        <button id="B_btn" onclick="B_openSocket('用户B')">用户B开启socket</button>
+    </div>
+    <div>
+        <button onclick="B_sendMessage($('#B_toUID').val(), $('#B_msg').val())">用户B发送消息</button>
+    </div>
+    <div>==================================</div>
+    <div>客户端主动发送消息</div>
+    <div>
+        <label>【toUID】：</label>
+        <input id="client_toUID" name="B_toUID" type="text" value="用户A">
+    </div>
+    <div>
+        <label>【Msg】：</label>
+        <input id="client_msg" name="B_msg" type="text" value="啦啦啦啦~~~">
+    </div>
+    <div>
+        <button onclick="clientSendMessage($('#client_toUID').val(), $('#client_msg').val())">客户端主动发送消息</button>
+    </div>
+</div>
+
+</body>
+
+</html>
+
+<style>
+    .container {
+        width: 100vw;
+        height: 100vh;
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .container div {
+        margin: 30px auto;
+    }
+
+    .container div button {
+        font-size: 20px;
+    }
+</style>
